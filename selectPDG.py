@@ -7,13 +7,22 @@ Created on Mon Apr 13 15:33:30 2026
 """
 
 import os
+import sys
 import json
 import numpy as np
 import pandas as pd
 
 from funcs import splitG, readRes, get_peaks
 
-with open('configs.json', 'r') as file:
+
+###############################################################################
+if len(sys.argv)>1:
+    config_name = sys.argv[1]
+else:
+    config_name = 'configs/configs_default.json'
+    
+
+with open(config_name, 'r') as file:
     configs = json.load(file)
 
 run_proc = configs['run_proc']

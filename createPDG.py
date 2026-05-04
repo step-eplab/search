@@ -7,6 +7,7 @@ Created on Tue Nov 26 12:40:04 2024
 """
 
 import os
+import sys
 import json
 
 import numpy as np
@@ -125,7 +126,13 @@ def createPDG(g_inx, Pers_LS, Pers_BLS, Durs_BLS,
             np.save(dir_BLS + 'BLS_' + str(g_inx) + '.npy', BLS_res)
 
 ###############################################################################
-with open('configs.json', 'r') as file:
+if len(sys.argv)>1:
+    config_name = sys.argv[1]
+else:
+    config_name = 'configs/configs_default.json'
+    
+
+with open(config_name, 'r') as file:
     configs = json.load(file)
 
 run_proc = configs['run_proc']

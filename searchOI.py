@@ -7,6 +7,7 @@ Created on Thu Dec 12 19:26:52 2024
 """
 
 import os
+import sys
 import json
 import numpy as np
 import pandas as pd
@@ -38,8 +39,15 @@ def plotFLC(SLC, pers, cols):
             ax.grid()
         ax.set_title(c + ', per = ' + str(round(p_win, 4)) + 'h')
 
+
 ###############################################################################
-with open('configs.json', 'r') as file:
+if len(sys.argv)>1:
+    config_name = sys.argv[1]
+else:
+    config_name = 'configs/configs_default.json'
+    
+
+with open(config_name, 'r') as file:
     configs = json.load(file)
 
 dir_LC = configs['dir_LC']
