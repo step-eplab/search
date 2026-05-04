@@ -37,7 +37,7 @@ def procPDG(g_inx, dir_BLS, dir_BLS_cor, u_per):
 if len(sys.argv)>1:
     config_name = sys.argv[1]
 else:
-    config_name = 'configs/configs_default.json'
+    config_name = 'configs_default.json'
     
 
 with open(config_name, 'r') as file:
