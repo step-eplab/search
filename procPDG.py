@@ -40,7 +40,8 @@ with open('configs.json', 'r') as file:
 run_proc = configs['run_proc']
 multi_proc = configs['multi_proc']
 
-dir_main = configs['dir_main']
+dir_res = configs['dir_res']
+
 ver_search = configs['ver_search']
 ver_cor = configs['ver_cor']
 
@@ -50,7 +51,7 @@ P_del = configs['P_del']
 P_del_range = configs['P_del_range']
 
 
-dir_search = dir_main + 'search/search' + ver_search + '/'
+dir_search = dir_res + 'search/search' + ver_search + '/'
 dir_conf = dir_search + 'configs/'
 dir_BLS = dir_BLS = dir_search + 'BLS/' 
 dir_BLS_cor = dir_BLS[:-1] + ver_cor + '/'

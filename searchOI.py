@@ -42,7 +42,9 @@ def plotFLC(SLC, pers, cols):
 with open('configs.json', 'r') as file:
     configs = json.load(file)
 
-dir_main = configs['dir_main']
+dir_LC = configs['dir_LC']
+dir_res = configs['dir_res']
+
 ver_search = configs['ver_search']
 ver_slc = configs['ver_slc']
 ver_cor = configs['ver_cor']
@@ -54,10 +56,10 @@ reg_search = configs['reg_search']
 n = configs['n'] #inx[0]
 v_min = configs['v_min'] #int(pc[pc <= N_max].index[::-1][0])
 
-dir_search = dir_main + 'search/search' + ver_search + '/'
+dir_search = dir_res + 'search/search' + ver_search + '/'
 dir_conf = dir_search + 'configs/'
 dir_res = dir_search + 'results/'
-dir_SLC = dir_main + 'SLC/SLC' + ver_slc + '/'
+dir_SLC = dir_LC + 'SLC/SLC' + ver_slc + '/'
 dir_FLC = dir_res + 'FLC_BLS' + ver_search + ver_cor + '/'
 dir_FLC_conf = dir_FLC + 'configs/'
 for d in [dir_FLC, dir_FLC_conf]:

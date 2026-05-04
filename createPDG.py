@@ -131,7 +131,9 @@ with open('configs.json', 'r') as file:
 run_proc = configs['run_proc']
 multi_proc = configs['multi_proc']
 
-dir_main = configs['dir_main']
+dir_LC = configs['dir_LC']
+dir_res = configs['dir_res']
+
 cat_path = configs['cat_path']
 ver_slc = configs['ver_slc']
 ver_search = configs['ver_search']
@@ -150,10 +152,10 @@ reg = configs['reg']
 
 ###############################################################################
 
-dir_SLC0 = dir_main + 'SLC/'
+dir_SLC0 = dir_LC + 'SLC/'
 dir_SLC = dir_SLC0 + 'SLC' + ver_slc + '/'
 
-dir_search0 = dir_main + 'search/'
+dir_search0 = dir_res + 'search/'
 dir_search = dir_search0 + 'search' + ver_search + '/'
 dir_BLS = dir_search + 'BLS/'
 dir_LS = dir_search + 'LS/'
