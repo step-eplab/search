@@ -8,62 +8,24 @@ Created on Thu Dec 12 19:26:52 2024
 
 import os
 import sys
-import json
 import numpy as np
 import pandas as pd
 
+from funcs import readConfig
 
-import matplotlib.pyplot as plt
-
-import matplotlib
-matplotlib.use('Agg')  
-print('QT5 off')
-#matplotlib.use('qt5agg') 
-
-from funcs import trimSC, fold, fit_bin, readLC
-
-def plotFLC(SLC, pers, cols):
-    t = (SLC.JD - min(SLC.JD))*24
-    Nc = len(cols)          
-    fig, Ax = plt.subplots(Nc, 1, figsize=(16, 10))
-    if Nc==1:
-        Ax = [Ax]
-    for c, ax, p_win in zip(cols, Ax, pers):
-        f = SLC[c]
-        f = trimSC(f, 3, 1)
-        t_f, n_f = fold(t, p_win)
-        ax.plot(t_f, f, '.', alpha=0.5)
-        for n, clr, lnw in zip([64, 164, 512], ['k', 'r', 'lime'], [3, 2, 1]):
-            x_av, y_av = fit_bin(t_f, f, n)
-            ax.plot(x_av, y_av, color=clr, linewidth=lnw)
-            ax.grid()
-        ax.set_title(c + ', per = ' + str(round(p_win, 4)) + 'h')
-
-
-###############################################################################
 if len(sys.argv)>1:
     config_name = sys.argv[1]
 else:
-    config_name = 'configs_default.json'
-    
+    config_name = 'configs/searchOI.json'
+#############################################################
+# Preparation
+#############################################################
+#### read configs
+(dir_LC, dir_res, field, ver_LC, ver_search, 
+ ver_slc, ver_cor, 
+ N_max, reg_search, n, v_min) = readConfig(config_name)
 
-with open(config_name, 'r') as file:
-    configs = json.load(file)
-
-dir_LC = configs['dir_LC']
-dir_res = configs['dir_res']
-
-ver_search = configs['ver_search']
-ver_slc = configs['ver_slc']
-ver_cor = configs['ver_cor']
-
-N_max = configs['N_max']
-
-reg_search = configs['reg_search']
-
-n = configs['n'] #inx[0]
-v_min = configs['v_min'] #int(pc[pc <= N_max].index[::-1][0])
-
+#### create folders
 dir_search = dir_res + 'search/search' + ver_search + '/'
 dir_conf = dir_search + 'configs/'
 dir_res = dir_search + 'results/'
@@ -73,9 +35,13 @@ dir_FLC_conf = dir_FLC + 'configs/'
 for d in [dir_FLC, dir_FLC_conf]:
     os.makedirs(d, exist_ok=True)
 
+#### read selectPDG table
 S = pd.read_csv(dir_res + 'res_BLS' + ver_search + ver_cor + '.csv')
-##################################
 
+
+#############################################################
+# Run
+#############################################################
 if reg_search!='S':
     N = S[['g_inx','per']].groupby(['g_inx','per']).value_counts()
     

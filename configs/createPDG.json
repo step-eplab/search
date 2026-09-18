@@ -1,0 +1,24 @@
+{
+"dir_LC": "/home/fedora/astronomy/STEP/main/data/F1/lightcurves/V6/",
+"dir_res": "/home/fedora/astronomy/STEP/main/data/F1/",
+"cat_path": "/home/fedora/astronomy/STEP/main/catalogs/F1/GAIA/F1_24.list",
+
+"field": "F1",
+"ver_LC": "V6",
+"ver_search": "_x",
+
+"ver_slc": "_2",
+
+"G_del": [],
+"G_select": [],
+"N_g_inx": 10,
+
+"mag_min": 0,
+"mag_max": 25,
+
+"Pers_BLS": [[25, 100, 0.5]],
+"Durs_BLS": [1, 5, 0.5],
+
+"min_dt": 120,
+"min_N": 1000
+}
