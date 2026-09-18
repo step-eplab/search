@@ -3,12 +3,12 @@
 
 "field": "F1",
 "ver_LC": "V6",
-"ver_search": "_x",
+"ver_search": "_13_100",
 
 "ver_cor": "_cor1",
 
 "P_min": 25,
-"P_max": 100,
+"P_max": 200,
 "P_del": [24, 12, 8, 6],
 "P_del_range": [1, 0.5, 0.25, 0.1]
 }

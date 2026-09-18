@@ -3,11 +3,12 @@
 
 "field": "F1",
 "ver_LC": "V6",
-"ver_search": "_x",
+"ver_search": "_13_100",
 
 "ver_cor": "_cor1",
+"ver_select": "_d0",
 
-"d_rel": 0.1,
+"d_rel": 0,
 "N_peak": 10,
 "N_per": 5
 }

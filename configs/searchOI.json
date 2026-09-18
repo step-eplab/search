@@ -1,13 +1,26 @@
 {
+"dir_LC": "/home/fedora/astronomy/STEP/main/data/F1/lightcurves/V6/",
 "dir_res": "/home/fedora/astronomy/STEP/main/data/F1/",
 
 "field": "F1",
 "ver_LC": "V6",
-"ver_search": "_x",
+"ver_search": "_13_100",
 
+"ver_slc": "_2",
 "ver_cor": "_cor1",
+"ver_select": "_d0",
 
-"d_rel": 0.1,
-"N_peak": 10,
-"N_per": 5
+"reg_search": "max",
+
+"v_min": 5,
+"p_top": 1,
+"G_select": [],
+"N": 4,
+
+"N_max": 500,
+
+
+
+
+"show": false
 }

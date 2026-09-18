@@ -42,7 +42,8 @@ else:
 #############################################################
 #### read configs
 (dir_LC, dir_res, cat_path, field, ver_LC, ver_search, 
- ver_slc, G_del, G_select, N_g_inx,  mag_min, mag_max, 
+ ver_slc, 
+ rnd_ch, G_del, G_select, N_g_inx,  mag_min, mag_max, 
  pers, durs, min_dt, min_N) = readConfig(config_name)
 
 #### create folders
@@ -62,7 +63,9 @@ F = pd.read_csv(cat_path, sep=' ', names=['ra', 'dec', 'mag', 'source_id'])
 F_inx = F.loc[(F.mag>mag_min) & (F.mag<mag_max)].index
 
 G_inx = getGInxLC(dir_SLC, field, ver_LC)    
-
+if rnd_ch:
+    G_inx = np.random.choice(G_inx, len(G_inx))
+    
 ### create grids for search (period, duration)
 Pers_BLS = pGrid(pers)
 Durs_BLS = pGrid([durs])
@@ -70,6 +73,8 @@ Durs_BLS = pGrid([durs])
 ### G_inx filter -> G_run = (G_select & G_inx & F_inx) - G_del
 if len(G_select)==0:
     G_select = G_inx
+else:
+    G_select = np.array(G_select)
 G_run = G_select[~np.isin(G_select, G_del) & np.isin(G_select, F_inx)]
 
 if N_g_inx>0:

@@ -5,19 +5,20 @@
 
 "field": "F1",
 "ver_LC": "V6",
-"ver_search": "_x",
+"ver_search": "_13",
 
 "ver_slc": "_2",
 
+"random_choice": false,
 "G_del": [],
-"G_select": [],
-"N_g_inx": 10,
+"G_select": [19550, 39304, 54963, 60190, 69549, 5383, 16044, 36692 , 76858,  6321, 7386, 9703, 46728],
+"N_g_inx": 100,
 
 "mag_min": 0,
 "mag_max": 25,
 
-"Pers_BLS": [[25, 100, 0.5]],
-"Durs_BLS": [1, 5, 0.5],
+"Pers_BLS": [[25, 200, 0.1]],
+"Durs_BLS": [1, 5, 0.25],
 
 "min_dt": 120,
 "min_N": 1000
