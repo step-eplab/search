@@ -12,7 +12,7 @@ import numpy as np
 
 from funcs import readConfig, getGInxLC, readRes, fit_bin, clearP, dropna
 
-def procPDG(g_inx, dir_BLS, dir_BLS_cor, u_per):
+def procPDG(g_inx, dir_BLS, dir_BLS_cor, Per, u_per):
     try:
         res = readRes(g_inx, dir_BLS)
     except:
@@ -48,7 +48,7 @@ os.makedirs(dir_BLS_cor, exist_ok=True)
 
 ### read Period grid, G_inx from BLS folder = G_run
 P_b = np.load(dir_conf + 'P_BLS' + ver_search + '.npy') 
-G_run = getGInxLC(dir_BLS, field, ver_LC)
+G_run, _ = getGInxLC(dir_BLS, field, ver_LC)
 
 ### Period grid correction 
 ### P_grid=(P_min<P<P_max)&(P!=(p in n*[p_del-p_del_range, p_del+p_del_range]))
@@ -70,7 +70,25 @@ print('len corr. Per = ' + str(len(Per)))
 print('\n PROC PDG')
 for g_inx in G_run:
     print(g_inx, end=', ')
-    procPDG(g_inx, dir_BLS, dir_BLS_cor, u_per)
+    procPDG(g_inx, dir_BLS, dir_BLS_cor, Per, u_per)
 
 print('\n\n\nlen init. PDG : ' + str(len(G_run)))
 print('len corr. PDG : ' + str(len((os.listdir(dir_BLS_cor)))))
+
+
+'''
+pwr0 = res
+plt.plot(P_b, pwr0)
+pwr1 = res[u_per]
+plt.plot(Per, pwr1)
+p = np.polyfit(x_av, y_av, 1)
+y = np.polyval(p, Per)
+plt.plot(Per, y)
+plt.plot(Per, pwr1/y, color='k', alpha=0.75)
+pwr2 = pwr1/y - 1
+plt.plot(Per, pwr2)
+plt.legend(['pwr0', 'pwr1', 'y', 'pwr1/y', 'pwr2'])
+plt.xlabel('Per')
+plt.ylabel('pwr')
+plt.tight_layout()
+'''

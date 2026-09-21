@@ -27,19 +27,19 @@ def readConfig(config_name, keys=[]):
 
     if keys==[]:
         keys = configs.keys()
-    print(f'Keys: {keys}')
+    # print(f'Keys: {keys}')
     V = []
     for k in keys:
         V.append(configs[k])
     return V
 
-def getGInxLC(dir_LC, field, ver_LC):
+def getGInxLC(dir_LC, field='F1', ver_LC='V6'):
     if field=='F1':
         if ver_LC=='V6':
             files = pd.Series(os.listdir(dir_LC))
             G_inx = files.str.split('_').str[1].str.split('.').str[0]
             G_inx = G_inx.astype(int).values
-    return G_inx
+    return G_inx, files
 
 #############################################
 
@@ -142,10 +142,10 @@ def fold(t, per, fi_0=0):
 
 #############################################
 
-def saveFLC(dir_save, g_inx, n_plot):
+def savePNG(dir_save, g_inx, post=''):
     plt.suptitle(str(g_inx))
     plt.tight_layout()
-    plt.savefig(dir_save + '/' + str(g_inx) + '_' + str(n_plot) + '.png')
+    plt.savefig(dir_save + str(g_inx) + post + '.png')
     plt.close()
     
 def plotFLC(dir_save, g_inx, SLC, pers, N_plot=3):
@@ -183,7 +183,7 @@ def plotFLC(dir_save, g_inx, SLC, pers, N_plot=3):
             ax.set_title('per = ' + str(round(p_win, 4)) + 'h')
             
             i_per += 1
-        saveFLC(dir_save, g_inx, i)
+        savePNG(dir_save, g_inx, '_' + str(i))
 
 
 

@@ -22,9 +22,10 @@ else:
 #############################################################
 #### read configs
 (dir_res, field, ver_LC, ver_search,
- ver_cor, ver_sel,
+ ver_cor,
  d_rel, N_peak, N_per) = readConfig(config_name)
-
+if N_per==0:
+    N_per = N_peak
 #### create folders
 dir_search = dir_res + 'search/search' + ver_search + '/'
 dir_conf = dir_search + 'configs/'
@@ -35,13 +36,15 @@ os.makedirs(dir_res, exist_ok=True)
 
 #### read Period grid, G_inx from BLS_cor folder = G_run
 Per = np.load(dir_conf + 'P_BLS' + ver_search + ver_cor + '.npy')
-G_run = getGInxLC(dir_BLS_cor, field, ver_LC)
+G_run, _ = getGInxLC(dir_BLS_cor, field, ver_LC)
 
-print(len(G_run))
+print(f'len G_run: {len(G_run)}')
 #############################################################
 # Run
 #############################################################
+print('\n SELECT PDG')
 S = pd.DataFrame(columns=['g_inx', 'per', 'val'])
+S.loc[-1] = [-1, -1, -1]
 for ij, g_inx in enumerate(G_run):
     pwr = readRes(g_inx, dir_BLS_cor)
 
@@ -52,7 +55,7 @@ for ij, g_inx in enumerate(G_run):
     val_wins = np.round(pwr_s[n_max], 1)
     
     if d_rel > 0:
-        for i in S[S.g_inx==g_inx].index:
+        for i in range(N_per):
             rel1 = p_wins / p_wins[i]
             rel2 = 1 / rel1
             u1 = (rel1 >= 2) & (rel1%1 < d_rel)
@@ -61,15 +64,18 @@ for ij, g_inx in enumerate(G_run):
             if r > 0:
                 S.loc[len(S)] = [g_inx, p_wins[i], val_wins[i]]
     else:
-        S = pd.concat((S, pd.DataFrame({'g_inx':g_inx, 'per':p_wins, 'val':val_wins})))
+        S = pd.concat((S, pd.DataFrame({'g_inx':g_inx, 'per':p_wins[:N_per], 'val':val_wins[:N_per]})))
         
-    if ij%100==0:
+    if ij%10==0:
         print(ij, end=', ')
 
+S = S.drop(-1, axis=0)
 S['g_inx'] = S['g_inx'].astype(int)
 S = S.reset_index(drop=True)
-S.to_csv(dir_res + 'Periods_BLS' + ver_search + ver_cor + ver_sel + '.csv')
-print(len(S))
+ver_sel = f'_{d_rel}-{N_peak}-{N_per}'
+name = 'Periods_BLS' + ver_search + ver_cor + ver_sel + '.csv'
+S.to_csv(dir_res + name)
+print(f'\n save {name} table to {dir_res}')
 
 
 

@@ -69,7 +69,7 @@ elif reg_search=='N':
     S = S.sort_values('val').loc[S.index[:N]]
     ver_flc = f'{reg_search}_{N}_{len(S)}'
 
-dir_save = dir_FLC + ver_flc
+dir_save = dir_FLC + ver_flc + '/'
 os.makedirs(dir_save, exist_ok=True)
 
 G_win = S['g_inx'].unique()
@@ -78,103 +78,3 @@ for g_inx in G_win:
     SLC = readLC(dir_SLC, g_inx, field, ver_LC)
     pers = S[S.g_inx==g_inx].per.values
     plotFLC(dir_save, g_inx, SLC, pers)
-
-
-
-
-
-'''
-if reg_search!='S':
-    N = S[['g_inx','per']].groupby(['g_inx','per']).value_counts()
-    
-    pv = pd.Series(N.values).value_counts()
-    inx = pv[(pv < N_max)==True].index
-    
-    if len(inx)==0:
-        inx = [max(N)]
-    
-    print(pv)
-    print(inx)
-    print('n = ' + str(n))
-    
-    dir_save = dir_FLC + 'N_' + str(n)
-    os.makedirs(dir_save, exist_ok=True)
-    
-    u_n = N==n
-    s = N[u_n]
-    GP = N.index[u_n]
-    G = []
-    Sgs = []
-    for gp in GP:
-        g_inx, per = gp
-        sg = S[(S.g_inx==g_inx) & (S.per==per)]  
-        G.append(g_inx)
-        Sgs.append(sg)
-    
-    
-    print('len obj : ' + str(len(GP)))
-    print('save FLC to ' + dir_save)
-    ij = 0
-    for g_inx, sg in zip(G, Sgs):
-        print(g_inx, end=',')
-        SLC = readLC(dir_SLC, 'SLC', g_inx)
-        
-        if not SLC is None:
-            cols, pers = sg['col'].values, sg['per'].values
-            
-            plotFLC(SLC, pers, cols)
-            plt.suptitle(str(g_inx))
-            plt.tight_layout()
-            plt.savefig(dir_save + '/' + str(g_inx) + '_' + str(round(pers[0], 2)) + '.png')
-            plt.close()
-    
-            if ij%10==0:
-                print(ij, end=', ')
-            ij+=1
-    
-    print('len obj G_N : ' + str(len(G)))
-    print('save FLC to ' + dir_save)
-    
-    np.save(dir_FLC_conf + 'G_N_' + str(n) + '.npy', G)
-
-######################################
-
-if reg_search!='G':
-    pv = pd.Series(np.round(S.val.values)).value_counts()
-    print(pv)
-    
-    pc = pv[::-1].cumsum()
-    
-    
-    u_s = (S.val > v_min)
-    print(sum(u_s))
-    print(len(np.unique(S.g_inx[u_s])))
-    
-    dir_save = dir_FLC + 'S_' + str(v_min)
-    if not os.path.isdir(dir_save):
-        os.mkdir(dir_save)
-        
-    G_s = np.unique(S.loc[u_s, 'g_inx'])
-    print('len obj G_S : ' + str(len(G_s)))
-    print('save FLC to ' + dir_save)
-    
-    
-    ij = 0
-    for g_inx in G_s:
-        SLC = readLC(dir_SLC, 'SLC', g_inx)
-        if not SLC is None:
-            sg = S[(S.g_inx==g_inx) & u_s]
-            
-            cols, pers = sg['col'].values, sg['per'].values
-    
-            plotFLC(SLC, pers, cols)
-            plt.suptitle(str(g_inx))
-            plt.tight_layout()
-            plt.savefig(dir_save + '/' + str(g_inx) + '_' + str(round(pers[0], 2)) + '.png')
-            plt.close()  
-                
-        if ij%10==0:
-            print(ij, end=', ')
-    
-    np.save(dir_FLC_conf + 'G_S_' + str(v_min) + '.npy', G_s)
-'''

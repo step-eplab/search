@@ -4,23 +4,19 @@
 
 "field": "F1",
 "ver_LC": "V6",
-"ver_search": "_13_100",
+"ver_search": "_13-0",
 
 "ver_slc": "_2",
 "ver_cor": "_cor1",
-"ver_select": "_d0",
+"ver_select": "_0.1-10-5",
 
-"reg_search": "max",
+"reg_search": "Vmin",
 
-"v_min": 5,
+"v_min": 7,
 "p_top": 1,
 "G_select": [],
 "N": 4,
 
 "N_max": 500,
-
-
-
-
 "show": false
 }
