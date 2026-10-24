@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 
 
-def readConfig(config_name, keys=[]):
+def readConfig(config_name, keys=[], save_path=''):
     print(f'Read: {config_name}')
     with open(config_name, 'r') as file:
         configs = json.load(file)
@@ -31,14 +31,19 @@ def readConfig(config_name, keys=[]):
     V = []
     for k in keys:
         V.append(configs[k])
+    
+  #  if len(save_path)>0:
+   #     with open(save_path, "w") as file:
+    #        json.dump(configs, file, indent=4) 
+  
     return V
 
 def getGInxLC(dir_LC, field='F1', ver_LC='V6'):
-    if field=='F1':
-        if ver_LC=='V6':
-            files = pd.Series(os.listdir(dir_LC))
-            G_inx = files.str.split('_').str[1].str.split('.').str[0]
-            G_inx = G_inx.astype(int).values
+   # if field=='F1':
+    #    if ver_LC=='V6':
+    files = pd.Series(os.listdir(dir_LC))
+    G_inx = files.str.split('_').str[1].str.split('.').str[0]
+    G_inx = G_inx.astype(int).values
     return G_inx, files
 
 #############################################
@@ -52,8 +57,7 @@ def pGrid(P_ranges):
 def readLC(dir_LC, g_inx, field, ver_LC):
     if field=='F1':
         if ver_LC=='V6':
-            file = dir_LC + 'SLC_' + str(g_inx) + '.csv'
-            
+            file = dir_LC + 'SLC_' + str(g_inx) + '.csv' 
             if os.path.isfile(file):
                 LC = pd.read_csv(file)
                 if 'med_S' in LC.columns:
@@ -66,6 +70,26 @@ def readLC(dir_LC, g_inx, field, ver_LC):
                 LC.columns = ['JD', 'f', 't']
                 LC = LC.dropna(subset=['f'])
                 return LC
+    if field=='F5':
+        if ver_LC=='V7':
+            file = dir_LC + 'SLC_' + str(g_inx) + '.csv' 
+            if os.path.isfile(file):
+                '''
+                LC = np.load(file).T
+                JD = LC[6]
+                mag = LC[0]
+                u = np.isfinite(mag)
+                '''
+                LC = pd.read_csv(file, index_col=0)
+                '''
+                u = np.isfinite(LC.f)
+                f = 10**(-LC.f[u]/2.5) + 1
+                JD = LC.JD[u]
+                t = (JD - np.min(JD)) * 24
+                LC = pd.DataFrame({'JD':JD,'t':t,'f':f})
+                '''
+                return LC
+            
 
 def BLS(t, f, Per, Dur, stat=0):
     model = BoxLeastSquares(t, f)
@@ -159,8 +183,9 @@ def plotFLC(dir_save, g_inx, SLC, pers, N_plot=3):
         N_plots[-1] = N_plot2
     
     f = SLC['f']
-    std = np.nanstd(f)
-    ylim = [(1 - 5*std), (1 + std)]
+   # std = np.nanstd(f)
+   # med = np.nanmedian(f)
+   # ylim = [(med - 5*std), (med + 2*std)]
     i_per = 0
     for i, n_plot in enumerate(N_plots):
         fig, Ax = plt.subplots(n_plot, 1, figsize=(16, 10))
@@ -171,19 +196,32 @@ def plotFLC(dir_save, g_inx, SLC, pers, N_plot=3):
             p_win = pers[i_per]
             #f = trimSC(f, 3, 1)
             t_f, n_f = fold(t, p_win)
-
             ax.plot(t_f, f, '.', alpha=0.5)
-            print(f'plot p = {p_win}')
+            '''
+            for n in np.unique(n_f):
+                u = n_f==n
+                if sum(u)>0:
+                    y = f[u] - np.nanmedian(f[u])
+                    ax.plot(t_f[u], y, '.', alpha=0.5)
+            '''
+            #print(f'plot p = {p_win}')
             for n, clr, lnw in zip([64, 164, 512], ['k', 'r', 'lime'], [3, 2, 1]):
+            #for n, clr, lnw in zip([64], ['k'], [3,]):
                 x_av, y_av = fit_bin(t_f, f, n)
                 ax.plot(x_av, y_av, color=clr, linewidth=lnw)
                 ax.grid()
-                ax.set_ylim(ylim)
+               # ax.set_ylim(ylim)
 
             ax.set_title('per = ' + str(round(p_win, 4)) + 'h')
             
             i_per += 1
         savePNG(dir_save, g_inx, '_' + str(i))
+
+
+# plotFLC('/home/fedora/astronomy/STEP/main/results/search/F5/search/search_18-50-0.01/results/FLC_BLS_18-50-0.01_cor4_0-20-10/can', 
+ #        g_inx, SLC, [38.06, 38.06*2])
+
+
 
 
 

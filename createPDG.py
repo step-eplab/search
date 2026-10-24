@@ -24,7 +24,10 @@ def calcPDG(LC, Pers_BLS, Durs_BLS):
 def createPDG(g_inx, dir_LC, field, ver_LC, dir_search,
               Pers_BLS, Durs_BLS, 
               min_dt, min_N):
-    LC = readLC(dir_LC, g_inx, field, ver_LC)
+    #LC = readLC(dir_LC, g_inx, field, ver_LC)
+    file = dir_LC + 'SLC_' + str(g_inx) + '.csv' 
+    LC = pd.read_csv(file, index_col=0)
+    LC = LC.dropna(subset=['f'])
     if not LC is None:
         t = LC['t']
         if ((max(t) - min(t)) > min_dt) & (len(t) > min_N):
@@ -36,12 +39,12 @@ def createPDG(g_inx, dir_LC, field, ver_LC, dir_search,
 if len(sys.argv)>1:
     config_name = sys.argv[1]
 else:
-    config_name = 'configs/createPDG.json'
+    config_name = 'configs_V7F5/createPDG.json'
 #############################################################
 # Preparation
 #############################################################
 #### read configs
-(dir_LC, dir_res, cat_path, field, ver_LC, ver_search, 
+(multiproc, dir_LC, dir_res, cat_path, field, ver_LC, ver_search, 
  ver_slc, 
  rnd_ch, G_del, G_select, N_g_inx,  mag_min, mag_max, 
  pers, durs, min_dt, min_N) = readConfig(config_name)
@@ -57,12 +60,12 @@ dir_SLC = dir_SLC0 + 'SLC' + ver_slc + '/'
 
 for d in [dir_search0, dir_search, dir_BLS, dir_conf]:
     os.makedirs(d, exist_ok=True)
-    
+
 #### read reference catalog, star indexes G_inx from folder with LC
 F = pd.read_csv(cat_path, sep=' ', names=['ra', 'dec', 'mag', 'source_id'])
 F_inx = F.loc[(F.mag>mag_min) & (F.mag<mag_max)].index
 
-G_inx = getGInxLC(dir_SLC, field, ver_LC)    
+G_inx, files = getGInxLC(dir_SLC, field, ver_LC)    
 if rnd_ch:
     G_inx = np.random.choice(G_inx, len(G_inx))
     
@@ -84,6 +87,7 @@ if N_g_inx>0:
 for G, txt in zip([G_del, G_select, G_run], ['del', 'select', 'run']):
     print(f'len G_inx {txt} : ' + str(len(G)))
 
+  
 for D, name in zip([Pers_BLS, Durs_BLS], ['P_BLS', 'D_BLS']):
     file = dir_conf + name + ver_search + '.npy'
     if not os.path.isfile(file):
@@ -96,11 +100,24 @@ for D, name in zip([Pers_BLS, Durs_BLS], ['P_BLS', 'D_BLS']):
 # Run
 #############################################################
 print('\n CREATE PDG: ')
-for g_inx in G_run:
-    print(g_inx, end=', ')
-    createPDG(g_inx, dir_SLC, field, ver_LC, dir_search, 
-              Pers_BLS, Durs_BLS, min_dt, min_N
-              )
+from multiprocessing import Pool, cpu_count
+
+if multiproc:
+    args = [
+        (g, dir_SLC, field, ver_LC, dir_search,
+         Pers_BLS, Durs_BLS, min_dt, min_N)
+        for g in G_run
+    ]
+    
+    with Pool(processes=cpu_count() - 1) as pool:
+        pool.starmap(createPDG, args)
+else:
+    for i, g_inx in enumerate(G_run):
+        createPDG(g_inx, dir_SLC, field, ver_LC, dir_search, 
+                  Pers_BLS, Durs_BLS, min_dt, min_N
+                  )    
+        if i%10==0:
+            print(i, end=', ')
 
 #############################################################
 # Save configs

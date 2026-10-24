@@ -30,7 +30,7 @@ def procPDG(g_inx, dir_BLS, dir_BLS_cor, Per, u_per):
 if len(sys.argv)>1:
     config_name = sys.argv[1]
 else:
-    config_name = 'configs/procPDG.json'
+    config_name = 'configs_V7F5/procPDG.json'
 #############################################################
 # Preparation
 #############################################################
@@ -68,9 +68,10 @@ print('len corr. Per = ' + str(len(Per)))
 # Run
 #############################################################
 print('\n PROC PDG')
-for g_inx in G_run:
-    print(g_inx, end=', ')
+for i, g_inx in enumerate(G_run):
     procPDG(g_inx, dir_BLS, dir_BLS_cor, Per, u_per)
+    if i%100==0:
+        print(i, end=', ')
 
 print('\n\n\nlen init. PDG : ' + str(len(G_run)))
 print('len corr. PDG : ' + str(len((os.listdir(dir_BLS_cor)))))

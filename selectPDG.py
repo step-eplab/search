@@ -16,7 +16,7 @@ from funcs import readConfig, getGInxLC, readRes, get_peaks
 if len(sys.argv)>1:
     config_name = sys.argv[1]
 else:
-    config_name = 'configs/selectPDG.json'
+    config_name = 'configs_V7F5/selectPDG.json'
 #############################################################
 # Preparation
 #############################################################
@@ -58,24 +58,46 @@ for ij, g_inx in enumerate(G_run):
         for i in range(N_per):
             rel1 = p_wins / p_wins[i]
             rel2 = 1 / rel1
-            u1 = (rel1 >= 2) & (rel1%1 < d_rel)
-            u2 = (rel2 >= 2) & (rel2%1 < d_rel)
+            u1 = (rel1 >= 2) & ((rel1%1) < d_rel)
+            u2 = (rel2 >= 2) & ((rel2%1) < d_rel)
             r = sum(u1) + sum(u2)
             if r > 0:
                 S.loc[len(S)] = [g_inx, p_wins[i], val_wins[i]]
     else:
         S = pd.concat((S, pd.DataFrame({'g_inx':g_inx, 'per':p_wins[:N_per], 'val':val_wins[:N_per]})))
         
-    if ij%10==0:
+    if ij%100==0:
         print(ij, end=', ')
 
 S = S.drop(-1, axis=0)
 S['g_inx'] = S['g_inx'].astype(int)
-S = S.reset_index(drop=True)
+
+
 ver_sel = f'_{d_rel}-{N_peak}-{N_per}'
 name = 'Periods_BLS' + ver_search + ver_cor + ver_sel + '.csv'
 S.to_csv(dir_res + name)
 print(f'\n save {name} table to {dir_res}')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

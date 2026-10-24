@@ -16,7 +16,7 @@ from funcs import readConfig, getGInxLC, savePNG
 if len(sys.argv)>1:
     config_name = sys.argv[1]
 else:
-    config_name = 'configs/plotPDG.json'
+    config_name = 'configs_V7/plotPDG.json'
 #############################################################
 # Preparation
 #############################################################
