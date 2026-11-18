@@ -108,11 +108,17 @@ def BLS(t, f, Per, Dur, stat=0):
 
 #############################################
 
-def readRes(g_inx, dir_BLS):
+def readRes(g_inx, dir_BLS, stat=0):
     file = dir_BLS + 'BLS_' + str(g_inx) + '.npy'
     if os.path.isfile(file):
         res = np.load(file, allow_pickle=True)
-        return res
+        if stat==0:
+            return res
+        else:
+            PWR = []
+            for r in res:
+                PWR.append(r['pwr'])
+            return PWR
     else:
         print('Not found: ' + str(g_inx), end=', ')
 
@@ -172,8 +178,8 @@ def savePNG(dir_save, g_inx, post=''):
     plt.savefig(dir_save + str(g_inx) + post + '.png')
     plt.close()
     
-def plotFLC(dir_save, g_inx, SLC, pers, N_plot=3):
-    t = SLC['t']
+def plotFLC(t, Fs, dir_save, g_inx, SLC, pers, N_plot=3):
+    
     N_per = len(pers)
     N_fig = (N_per - 1) // N_plot + 1
     
@@ -181,8 +187,6 @@ def plotFLC(dir_save, g_inx, SLC, pers, N_plot=3):
     N_plots = np.full(N_fig, N_plot)
     if N_plot2>0:
         N_plots[-1] = N_plot2
-    
-    f = SLC['f']
    # std = np.nanstd(f)
    # med = np.nanmedian(f)
    # ylim = [(med - 5*std), (med + 2*std)]
@@ -191,9 +195,9 @@ def plotFLC(dir_save, g_inx, SLC, pers, N_plot=3):
         fig, Ax = plt.subplots(n_plot, 1, figsize=(16, 10))
         if n_plot==1:
             Ax = [Ax]
-        
         for ax in Ax:
             p_win = pers[i_per]
+            f = Fs[i_per]
             #f = trimSC(f, 3, 1)
             t_f, n_f = fold(t, p_win)
             ax.plot(t_f, f, '.', alpha=0.5)

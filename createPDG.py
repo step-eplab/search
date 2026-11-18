@@ -11,7 +11,7 @@ import sys
 import numpy as np
 import pandas as pd
 
-from funcs import readConfig, getGInxLC, pGrid, readLC, BLS
+from funcs import readConfig, getGInxLC, pGrid, BLS
     
 def calcPDG(LC, Pers_BLS, Durs_BLS):
     TF = LC[['t', 'f']].values
@@ -21,25 +21,31 @@ def calcPDG(LC, Pers_BLS, Durs_BLS):
     return pwr_bls
 
 
-def createPDG(g_inx, dir_LC, field, ver_LC, dir_search,
+def createPDG(g_inx, dir_SLC, dir_BLS, field, ver_LC, dir_search,
               Pers_BLS, Durs_BLS, 
-              min_dt, min_N):
+              min_dt, min_N, lc_cols=['f']):
     #LC = readLC(dir_LC, g_inx, field, ver_LC)
-    file = dir_LC + 'SLC_' + str(g_inx) + '.csv' 
-    LC = pd.read_csv(file, index_col=0)
-    LC = LC.dropna(subset=['f'])
-    if not LC is None:
-        t = LC['t']
-        if ((max(t) - min(t)) > min_dt) & (len(t) > min_N):
-            dir_BLS = dir_search + 'BLS/'
-            BLS_res = calcPDG(LC, Pers_BLS, Durs_BLS) #, min_dt, min_N)
-            if not BLS_res is None:
-                np.save(dir_BLS + 'BLS_' + str(g_inx) + '.npy', BLS_res)
-
+    try:
+        file = dir_SLC + 'SLC_' + str(g_inx) + '.csv' 
+        LC = pd.read_csv(file, index_col=0)
+        RES = []
+        for col in lc_cols:
+            f = LC[col]
+            f = f.dropna()
+            if len(f)>min_N:
+                t = LC.loc[f.index, 't']
+                if (max(t) - min(t)) > min_dt:
+                    #BLS_res = calcPDG(LC, Pers_BLS, Durs_BLS) #, min_dt, min_N)
+                    res = BLS(t, f, Pers_BLS, Durs_BLS, stat=1)
+                    RES.append(res)
+        if len(RES)>0:
+            np.save(dir_BLS + 'BLS_' + str(g_inx) + '.npy', RES)
+    except:
+        print('\n', g_inx)
 if len(sys.argv)>1:
     config_name = sys.argv[1]
 else:
-    config_name = 'configs_V7F5/createPDG.json'
+    config_name = '../configs/configs_search_V7F5/createPDG.json'
 #############################################################
 # Preparation
 #############################################################
@@ -47,7 +53,8 @@ else:
 (multiproc, dir_LC, dir_res, cat_path, field, ver_LC, ver_search, 
  ver_slc, 
  rnd_ch, G_del, G_select, N_g_inx,  mag_min, mag_max, 
- pers, durs, min_dt, min_N) = readConfig(config_name)
+ pers, durs, min_dt, min_N, 
+ cols, run) = readConfig(config_name)
 
 #### create folders
 dir_search0 = dir_res + 'search/'
@@ -99,44 +106,47 @@ for D, name in zip([Pers_BLS, Durs_BLS], ['P_BLS', 'D_BLS']):
 #############################################################
 # Run
 #############################################################
-print('\n CREATE PDG: ')
-from multiprocessing import Pool, cpu_count
 
-if multiproc:
-    args = [
-        (g, dir_SLC, field, ver_LC, dir_search,
-         Pers_BLS, Durs_BLS, min_dt, min_N)
-        for g in G_run
-    ]
+if run:
+    print('\n CREATE PDG: ')
+    from multiprocessing import Pool, cpu_count
     
-    with Pool(processes=cpu_count() - 1) as pool:
-        pool.starmap(createPDG, args)
+    if multiproc:
+        args = [
+            (g, dir_SLC, dir_BLS, field, ver_LC, dir_search,
+             Pers_BLS, Durs_BLS, min_dt, min_N, cols)
+            for g in G_run
+        ]
+        
+        with Pool(processes=cpu_count() - 1) as pool:
+            pool.starmap(createPDG, args)
+    else:
+        for i, g_inx in enumerate(G_run):
+            createPDG(g_inx, dir_SLC, dir_BLS, field, ver_LC, dir_search, 
+                      Pers_BLS, Durs_BLS, min_dt, min_N, cols
+                      )    
+            if i%10==0: 
+                print(i, end=', ')
+    
+    #############################################################
+    # Save configs
+    #############################################################
+    L1 = len(G_run)
+    L2 = len(os.listdir(dir_BLS))
+    X = ['len of objects (input)', 'len of objects (output: BLS)',
+        '\n\npath to LC for search', 'directory for result',
+        'minum lenght of LC for analysis (hours)',
+        'minum lenght of LC for analysis (points)',]
+    Y = [L1, L2, dir_SLC, dir_search, min_dt, min_N]
+    S = ''
+    for x, y in zip(X, Y):
+        s = x + ' : ' + str(y)
+        print(s)
+        S += s + '\n'
+    
+    with open(dir_conf + 'search' + ver_search + '_configs', 'w') as x:
+        x.write(S)
 else:
-    for i, g_inx in enumerate(G_run):
-        createPDG(g_inx, dir_SLC, field, ver_LC, dir_search, 
-                  Pers_BLS, Durs_BLS, min_dt, min_N
-                  )    
-        if i%10==0:
-            print(i, end=', ')
-
-#############################################################
-# Save configs
-#############################################################
-L1 = len(G_run)
-L2 = len(os.listdir(dir_BLS))
-X = ['len of objects (input)', 'len of objects (output: BLS)',
-    '\n\npath to LC for search', 'directory for result',
-    'minum lenght of LC for analysis (hours)',
-    'minum lenght of LC for analysis (points)',]
-Y = [L1, L2, dir_SLC, dir_search, min_dt, min_N]
-S = ''
-for x, y in zip(X, Y):
-    s = x + ' : ' + str(y)
-    print(s)
-    S += s + '\n'
-
-with open(dir_conf + 'search' + ver_search + '_configs', 'w') as x:
-    x.write(S)
-
+    print('\n\nrun: false\n\n')
 
 

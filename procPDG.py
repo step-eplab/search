@@ -12,32 +12,42 @@ import numpy as np
 
 from funcs import readConfig, getGInxLC, readRes, fit_bin, clearP, dropna
 
-def procPDG(g_inx, dir_BLS, dir_BLS_cor, Per, u_per):
+def procPDG(g_inx, dir_BLS, dir_BLS_cor, Per, u_per, cor, stat=1):
     try:
-        res = readRes(g_inx, dir_BLS)
+        if stat==0:
+            RES = [readRes(g_inx, dir_BLS, stat)]
+        else:
+            RES = readRes(g_inx, dir_BLS, stat)
     except:
-        res = None
-    if not res is None:
-        pwr = res[u_per]
-        x_av, y_av = fit_bin(Per, pwr, 24)
-        x_av, y_av = dropna(x_av, y_av)
-        p = np.polyfit(x_av, y_av, 1)
-        y = np.polyval(p, Per)
-        pwr2 = pwr/y - 1
+        RES = None
+    if not RES is None:
+        PWR = []
+        for res in RES:
+            pwr = res[u_per]
+            if cor:
+                x_av, y_av = fit_bin(Per, pwr, 24)
+                x_av, y_av = dropna(x_av, y_av)
+                p = np.polyfit(x_av, y_av, 1)
+                y = np.polyval(p, Per)
+                pwr2 = pwr/y - 1
+                PWR.append(pwr2)
+            else:
+                PWR.append(pwr)
 
-        np.save(dir_BLS_cor + 'BLS_' + str(g_inx) + '.npy', pwr2)
-
+        np.save(dir_BLS_cor + 'BLS_' + str(g_inx) + '.npy', PWR)
+        
 if len(sys.argv)>1:
     config_name = sys.argv[1]
 else:
-    config_name = 'configs_V7F5/procPDG.json'
+    config_name = '../configs/configs_search_V7F5/procPDG.json'
 #############################################################
 # Preparation
 #############################################################
 #### read configs
 (dir_res, field, ver_LC, ver_search,
  ver_cor, 
- P_min, P_max, P_del, P_del_range) = readConfig(config_name)
+ P_min, P_max, P_del, P_del_range, cor,
+ run) = readConfig(config_name)
 
 #### create folders
 dir_search = dir_res + 'search/search' + ver_search + '/'
@@ -67,15 +77,17 @@ print('len corr. Per = ' + str(len(Per)))
 #############################################################
 # Run
 #############################################################
-print('\n PROC PDG')
-for i, g_inx in enumerate(G_run):
-    procPDG(g_inx, dir_BLS, dir_BLS_cor, Per, u_per)
-    if i%100==0:
-        print(i, end=', ')
-
-print('\n\n\nlen init. PDG : ' + str(len(G_run)))
-print('len corr. PDG : ' + str(len((os.listdir(dir_BLS_cor)))))
-
+if run:
+    print('\n PROC PDG')
+    for i, g_inx in enumerate(G_run):
+        procPDG(g_inx, dir_BLS, dir_BLS_cor, Per, u_per, cor)
+        if i%100==0:
+            print(i, end=', ')
+    
+    print('\n\n\nlen init. PDG : ' + str(len(G_run)))
+    print('len corr. PDG : ' + str(len((os.listdir(dir_BLS_cor)))))
+else:
+    print('\n\nrun: false\n\n')
 
 '''
 pwr0 = res
